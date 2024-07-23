@@ -1,3 +1,4 @@
+'use client'
 // components/LoginForm.tsx
 
 import React from "react";
@@ -5,6 +6,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
+import { Router, useRouter } from "next/router";
+import Link from "next/link";
 
 const schema = z.object({
   email: z
@@ -30,15 +33,23 @@ const LoginForm: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     try {
-      await signIn("credentials", {
-        redirect: false,
-        email: data.email,
-        password: data.password,
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
-      // Sucesso ao fazer login, você pode redirecionar ou executar outras ações aqui
-      console.log("Login bem-sucedido!");
+
+      if (response.ok) {
+        alert('Login bem-sucedido!');
+        router.push("/");
+      } else {
+        console.error('Erro ao fazer login:', await response.text());
+      }
+      
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
+      console.error('Erro ao fazer login:', error);
     }
   };
 
@@ -91,6 +102,18 @@ const LoginForm: React.FC = () => {
         >
           Entrar
         </button>
+
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Criar conta
+        </button>
+        <Link href="/CreateAccount">
+        
+          <button>Ir</button>
+        
+      </Link>
       </div>
     </form>
   );
